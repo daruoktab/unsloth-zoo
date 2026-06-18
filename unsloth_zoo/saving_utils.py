@@ -3128,61 +3128,72 @@ pass
 def _infer_prefix_and_remap(lora_weights, safetensor_keys):
     """Infer missing key prefixes by matching LoRA keys against safetensor keys.
 
-    Composite models (e.g. Qwen3.5) may store safetensors under an extra prefix
-    (``model.language_model.``) that differs from the runtime ``model.``
-    namespace. With no ``_checkpoint_conversion_mapping``, remap per key:
-    already-matching keys are kept; keys with a single prefix candidate are
-    remapped; unmatched keys (e.g. fused MoE params) inherit the most common
-    inferred prefix.
+    Composite models (e.g. Qwen3.5, T5Gemma) may store safetensors under an extra prefix
+    (``model.language_model.``) or alternate block structures (e.g. ``encoder.layers``
+    vs ``encoder.text_model.layers``) that differ from the runtime model namespace.
+    With no ``_checkpoint_conversion_mapping``, remap per key: already-matching keys
+    are kept; keys with a single prefix/structure candidate are remapped; unmatched keys
+    inherit default structures.
 
     Returns the remapped ``defaultdict``, or ``None`` if nothing was remapped.
     """
     if not safetensor_keys:
         return None
 
+    def clean_key(key):
+        if key.endswith(".weight"):
+            key = key[:-len(".weight")]
+        if key.endswith(".bias"):
+            key = key[:-len(".bias")]
+        if key.startswith("model."):
+            key = key[len("model."):]
+        key = key.replace(".text_model.", ".")
+        return key
+
+    # Build a lookup dictionary for safetensor keys normalized
+    sf_lookup = {}
+    for sf_key in safetensor_keys:
+        cleaned = clean_key(sf_key)
+        sf_lookup[cleaned] = sf_key
+
     sf_key_set = set(safetensor_keys)
     remapped = defaultdict(lora_weights.default_factory)
     changed = False
-    inferred_prefixes = []  # track prefixes from successful per-key matches
-    unmatched_keys = []     # keys that couldn't be matched at all
 
     for k, v in lora_weights.items():
         if not isinstance(k, str):
             remapped[k] = v
             continue
-        # Already matches a safetensor key
+
+        # Try exact match first
         if (k + ".weight") in sf_key_set:
             remapped[k] = v
             continue
-        # Unique non-empty prefix candidates for this key
-        suffix = k + ".weight"
-        candidates = list(dict.fromkeys(
-            sf_key[: -len(suffix)]
-            for sf_key in safetensor_keys
-            if sf_key.endswith(suffix) and sf_key[: -len(suffix)]
-        ))
-        if len(candidates) == 1:
-            remapped[candidates[0] + k] = v
-            inferred_prefixes.append(candidates[0])
+        elif (k + ".bias") in sf_key_set:
+            remapped[k] = v
+            continue
+
+        # Try normalized match
+        cleaned_k = clean_key(k)
+        if cleaned_k in sf_lookup:
+            sf_key = sf_lookup[cleaned_k]
+            # Strip weight or bias suffix to get the base lora key
+            base_sf_key = sf_key
+            if base_sf_key.endswith(".weight"):
+                base_sf_key = base_sf_key[:-len(".weight")]
+            elif base_sf_key.endswith(".bias"):
+                base_sf_key = base_sf_key[:-len(".bias")]
+            
+            remapped[base_sf_key] = v
             changed = True
         else:
-            # No match or ambiguous -- defer to fallback
-            unmatched_keys.append((k, v))
+            remapped[k] = v
 
     if not changed:
         return None
 
-    # Unmatched keys (e.g. fused MoE params): use the most common inferred prefix
-    if unmatched_keys and inferred_prefixes:
-        from collections import Counter
-        common_prefix = Counter(inferred_prefixes).most_common(1)[0][0]
-        for k, v in unmatched_keys:
-            remapped[common_prefix + k] = v
-    else:
-        for k, v in unmatched_keys:
-            remapped[k] = v
-
     return remapped
+
 
 
 def _convert_lora_keys_to_safetensor_format(
