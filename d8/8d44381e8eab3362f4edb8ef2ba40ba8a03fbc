@@ -1,7 +1,20 @@
+unsloth_zoo/saving_utils.py
+  s_58dab83d3fbe8f::t_cfb10604777535 4153
+  s_58dab83d3fbe8f::t_fb093fd7f2ad60 4187-4188,4191-4205
 ---
 {
   "schema_version": "authorship/3.0.0",
   "git_ai_version": "1.5.8",
   "base_commit_sha": "d88d44381e8eab3362f4edb8ef2ba40ba8a03fbc",
-  "prompts": {}
+  "prompts": {},
+  "sessions": {
+    "s_58dab83d3fbe8f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "953fb761-a712-469f-abba-e2ef8b81c7dc",
+        "model": "mimo-v2.5-pro"
+      },
+      "human_author": "daruoktab <daruokta@gmail.com>"
+    }
+  }
 }
