@@ -1,0 +1,19 @@
+.github/workflows/consolidated-tests-ci.yml
+  s_58dab83d3fbe8f::t_e1b28febe68d88 102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "bca4a1a8270c9209596393dfc3d2fd3ebe0b4c02",
+  "prompts": {},
+  "sessions": {
+    "s_58dab83d3fbe8f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "953fb761-a712-469f-abba-e2ef8b81c7dc",
+        "model": "mimo-v2.5-pro"
+      },
+      "human_author": "daruoktab <daruokta@gmail.com>"
+    }
+  }
+}
