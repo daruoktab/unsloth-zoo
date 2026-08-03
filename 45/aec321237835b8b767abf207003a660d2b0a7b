@@ -1,0 +1,14 @@
+unsloth_zoo/saving_utils.py
+  h_4e362b87d6c27d 4216-4217
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "45aec321237835b8b767abf207003a660d2b0a7b",
+  "prompts": {},
+  "humans": {
+    "h_4e362b87d6c27d": {
+      "author": "daruoktab <daruokta@gmail.com>"
+    }
+  }
+}
