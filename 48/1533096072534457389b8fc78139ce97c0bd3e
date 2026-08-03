@@ -1,0 +1,22 @@
+.github/workflows/consolidated-tests-ci.yml
+  h_4e362b87d6c27d 102,268
+.github/workflows/lint-ci.yml
+  h_4e362b87d6c27d 6
+.github/workflows/security-audit.yml
+  h_4e362b87d6c27d 5
+pyproject.toml
+  h_4e362b87d6c27d 31,42-43,81-82,89
+unsloth_zoo/saving_utils.py
+  h_4e362b87d6c27d 4182-4187,4190,4196-4211,4221-4222,4225-4239,4372
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "481533096072534457389b8fc78139ce97c0bd3e",
+  "prompts": {},
+  "humans": {
+    "h_4e362b87d6c27d": {
+      "author": "daruoktab <daruokta@gmail.com>"
+    }
+  }
+}
