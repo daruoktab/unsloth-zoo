@@ -23,13 +23,13 @@ classifiers = [
 ]
 dependencies = [
     # --- GPU-only deps (skipped on macOS arm64) ---
-    "torch>=2.4.0,<2.13.0 ; (sys_platform != 'darwin' or platform_machine != 'arm64')",
-    "torchao>=0.13.0 ; (sys_platform != 'darwin' or platform_machine != 'arm64')",
+    "torch>=2.4.0 ; (sys_platform != 'darwin' or platform_machine != 'arm64')",
+    "torchao>=0.18.0 ; (sys_platform != 'darwin' or platform_machine != 'arm64')",
     "triton>=3.0.0 ; ('linux' in sys_platform)",
     "tyro ; (sys_platform != 'darwin' or platform_machine != 'arm64')",
-    "accelerate>=0.34.1 ; (sys_platform != 'darwin' or platform_machine != 'arm64')",
-    "trl>=0.18.2,!=0.19.0,<=1.13.0 ; (sys_platform != 'darwin' or platform_machine != 'arm64')",
-    "peft>=0.18.0,!=0.11.0 ; (sys_platform != 'darwin' or platform_machine != 'arm64')",
+    "accelerate>=1.15.0 ; (sys_platform != 'darwin' or platform_machine != 'arm64')",
+    "trl>=1.13.0 ; (sys_platform != 'darwin' or platform_machine != 'arm64')",
+    "peft>=0.20.0 ; (sys_platform != 'darwin' or platform_machine != 'arm64')",
     "cut_cross_entropy ; python_version >= '3.10' and (sys_platform != 'darwin' or platform_machine != 'arm64')",
     # --- MLX-only deps (macOS arm64) ---
     # Pinned, not floored. mlx ships breaking changes in PATCH releases: 0.32.1
@@ -54,23 +54,16 @@ dependencies = [
     # than overrides it.
     "mlx-vlm>=0.4.4,<=0.7.1 ; (sys_platform == 'darwin' and platform_machine == 'arm64')",
     # --- Shared deps (all platforms) ---
-    "packaging>=24.1",
-    # Floor is 4.52.4, not 4.51.3: peft declares no transformers floor of its own (a
-    # bare `transformers` on 0.18.0 through 0.21.0), and peft 0.18.0 -- the peft floor
-    # below -- imports `GradientCheckpointingLayer` from `transformers.modeling_layers`
-    # at peft/tuners/lora/model.py:26, a module that first exists in transformers
-    # 4.52.0. At 4.51.3 `import unsloth_zoo.saving_utils` raised ModuleNotFoundError
-    # after a resolve that satisfied every declared constraint. 4.52.4 rather than
-    # 4.52.0 because 4.52.0 through 4.52.3 were already rejected by name.
-    "transformers>=4.52.4,!=4.53.0,!=4.54.0,!=4.55.0,!=4.55.1,!=4.57.4,!=4.57.5,!=5.0.0,!=5.1.0,<=5.5.0",
-    "datasets>=3.4.1,!=4.0.*,!=4.1.0,<4.4.0",
-    "sentencepiece>=0.2.0",
+    "packaging>=26.3",
+    "transformers>=5.17.0",
+    "datasets>=5.0.1",
+    "sentencepiece>=0.2.2",
     "tqdm",
     "psutil",
-    "wheel>=0.42.0",
+    "wheel>=0.48.0",
     "numpy",
     "protobuf",
-    "huggingface_hub>=0.34.0",
+    "huggingface_hub>=1.31.0",
     "hf_transfer",
     "pillow",
     "regex",
@@ -105,21 +98,20 @@ mlx = [
     "mlx-vlm>=0.4.4,<=0.7.1",
 ]
 core = [
-    "packaging>=24.1",
+    "packaging>=26.3",
     "tyro",
-    # Floor rationale as above: peft 0.18.0 needs transformers.modeling_layers, 4.52.0+.
-    "transformers>=4.52.4,!=4.53.0,!=4.54.0,!=4.55.0,!=4.55.1,!=4.57.4,!=4.57.5,!=5.0.0,!=5.1.0,<=5.5.0",
-    "datasets>=3.4.1,!=4.0.*,!=4.1.0,<4.4.0",
-    "sentencepiece>=0.2.0",
+    "transformers>=5.17.0",
+    "datasets>=5.0.1",
+    "sentencepiece>=0.2.2",
     "tqdm",
     "psutil",
-    "wheel>=0.42.0",
+    "wheel>=0.48.0",
     "numpy",
-    "accelerate>=0.34.1",
-    "trl>=0.18.2,!=0.19.0,<=1.13.0",
-    "peft>=0.18.0,!=0.11.0",
+    "accelerate>=1.15.0",
+    "trl>=1.13.0",
+    "peft>=0.20.0",
     "protobuf",
-    "huggingface_hub>=0.34.0",
+    "huggingface_hub>=1.31.0",
     "hf_transfer",
     "cut_cross_entropy ; python_version >= '3.10'",
     "pillow",
