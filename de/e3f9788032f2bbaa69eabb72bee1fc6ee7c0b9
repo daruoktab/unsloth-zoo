@@ -1,0 +1,16 @@
+pyproject.toml
+  h_4e362b87d6c27d 26-27,30-32,57-60,63,66,101,103-105,108,110-112,114
+unsloth_zoo/saving_utils.py
+  h_4e362b87d6c27d 4522-4527,4530,4536-4551,4563-4564,4567-4581,4714
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "dee3f9788032f2bbaa69eabb72bee1fc6ee7c0b9",
+  "prompts": {},
+  "humans": {
+    "h_4e362b87d6c27d": {
+      "author": "daruoktab <daruokta@gmail.com>"
+    }
+  }
+}
