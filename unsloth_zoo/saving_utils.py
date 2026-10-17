@@ -6795,6 +6795,24 @@ def _infer_prefix_and_remap(lora_weights, safetensor_keys):
     if not safetensor_keys:
         return None
 
+    def clean_key(key):
+        if key.endswith(".weight"):
+            key = key[: -len(".weight")]
+        if key.endswith(".bias"):
+            key = key[: -len(".bias")]
+        if key.startswith("model."):
+            key = key[len("model.") :]
+        key = key.replace(".text_model.", ".")
+        return key
+
+    # T5Gemma2 checkpoints store the encoder as ``model.encoder.layers.*`` while the
+    # runtime module is ``model.encoder.text_model.layers.*`` (the reverse of the
+    # transformers conversion mapping). Normalize both sides so the merge can find
+    # the encoder tensors instead of silently treating the LoRA as unbacked.
+    sf_lookup = {}
+    for sf_key in safetensor_keys:
+        sf_lookup[clean_key(sf_key)] = sf_key
+
     sf_key_set = set(safetensor_keys)
     valid_prefixes = _build_valid_prefixes(sf_key_set)  # O(1) MoE backing lookups
     remapped = defaultdict(lora_weights.default_factory)
@@ -6807,9 +6825,28 @@ def _infer_prefix_and_remap(lora_weights, safetensor_keys):
             remapped[k] = v
             continue
         # Already matches a safetensor key (direct, or Gemma4 ClippableLinear .linear.weight)
-        if (k + ".weight") in sf_key_set or (k + ".linear.weight") in sf_key_set:
+        if (
+            (k + ".weight") in sf_key_set
+            or (k + ".linear.weight") in sf_key_set
+            or (k + ".bias") in sf_key_set
+        ):
             remapped[k] = v
             continue
+
+        # Normalized match: T5Gemma2's encoder.text_model.* runtime namespace vs the
+        # encoder.* checkpoints written by save_pretrained's conversion revert.
+        cleaned_k = clean_key(k)
+        if cleaned_k in sf_lookup:
+            sf_key = sf_lookup[cleaned_k]
+            base_sf_key = sf_key
+            for suffix in (".weight", ".linear.weight", ".bias"):
+                if base_sf_key.endswith(suffix):
+                    base_sf_key = base_sf_key[: -len(suffix)]
+                    break
+            remapped[base_sf_key] = v
+            changed = True
+            continue
+
         # unique prefix candidates; also accept a .linear.weight shard (Gemma4) so a
         # prefix-add onto it is not dropped.
         candidates = list(dict.fromkeys(

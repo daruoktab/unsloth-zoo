@@ -233,6 +233,13 @@ def get_peft_regex(
                 )
     pass
 
+    # Encoder-decoder models put the generation stack under `decoder`, not
+    # `language`/`text` (T5Gemma2: model.decoder.layers.*). Without this tag the
+    # default language filter silently trains the encoder only.
+    if getattr(getattr(model, "config", None), "is_encoder_decoder", False) \
+            and "decoder" not in language_tags:
+        language_tags = list(language_tags) + ["decoder"]
+
     regex_model_parts = []
     if finetune_vision_layers:     regex_model_parts += vision_tags
     if finetune_language_layers:   regex_model_parts += language_tags
